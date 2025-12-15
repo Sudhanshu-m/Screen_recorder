@@ -1,36 +1,205 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎥 Screen Recorder with Server-Side Trimming & Analytics
 
-## Getting Started
+A full-stack **Next.js** application that allows users to record their screen with microphone audio, trim videos on the server using **ffmpeg**, generate public shareable links, and track basic viewing analytics.
 
-First, run the development server:
+This project is intentionally designed with a focus on **clean architecture, real-world constraints, and production-ready engineering decisions**, rather than just feature count.
+
+---
+
+## 🚀 Features
+
+- 🎬 Screen + microphone recording using the **MediaRecorder API**
+- ✂️ Server-side video trimming using **ffmpeg**
+- 🔗 Public, shareable links for recorded videos
+- 📊 Basic analytics:
+  - Total view count
+  - Watch completion tracking
+  - Visual completion progress bar
+- 🧱 Clear **Server / Client separation** using Next.js App Router
+- 💾 Persistent storage with **Prisma + SQLite**
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+
+**Backend**
+- Next.js API Routes
+- Prisma ORM
+
+**Video Processing**
+- ffmpeg (via fluent-ffmpeg)
+
+**Database**
+- SQLite (local persistence)
+
+**Deployment**
+- Render (Node Web Service)
+
+---
+
+## ⚙️ Local Setup Instructions
+
+### 1️⃣ Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Sudhanshu-m/Screen_recorder.git
+cd screen-recorder-nextjs
 ```
+### 2️⃣ Install dependencies
+npm install
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3️⃣ Install ffmpeg (Required)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+ffmpeg must be available in your system PATH.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Check:
 
-## Learn More
+ffmpeg -version
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Install if missing:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Windows: https://www.gyan.dev/ffmpeg/builds/
 
-## Deploy on Vercel
+Mac (Homebrew):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+brew install ffmpeg
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4️⃣ Environment variables
+
+Create a .env file in the project root:
+
+DATABASE_URL=file:./dev.db
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+### 5️⃣ Initialize the database
+npx prisma migrate dev
+
+### 6️⃣ Run the application
+npm run dev
+
+
+Open:
+
+http://localhost:3000
+
+###  Architecture Decisions
+🔹 Server-Side Video Trimming
+
+Video trimming is performed on the server using ffmpeg
+
+The client only records video and sends trim timestamps
+
+Avoids heavy browser computation and instability
+
+Reasoning:
+Server-side media processing is more reliable and closer to real production systems.
+
+🔹 Server vs Client Components (Next.js App Router)
+
+Server Components
+
+Fetch data from Prisma
+
+Validate video existence
+
+Client Components
+
+Video playback
+
+User interactions
+
+Analytics events (views, completion)
+
+Reasoning:
+Strict separation avoids hydration issues and follows Next.js best practices.
+
+🔹 Analytics Design
+
+Stored metrics:
+
+views → total video opens
+
+completed → number of full video watches
+
+Derived metric:
+
+Completion percentage calculated at render time
+
+Reasoning:
+Keeps database normalized and avoids storing redundant data.
+
+🔹 Storage Strategy
+
+Videos are stored locally in public/videos/
+
+Suitable for demos and interviews
+
+Reasoning:
+Keeps setup simple while demonstrating full functionality.
+
+🚀 Deployment
+
+The application is deployed on Render because:
+
+Render supports system-level ffmpeg binaries
+
+Serverless platforms like Vercel do not support ffmpeg
+
+Deployment approach:
+
+Node Web Service
+
+next build + next start
+
+🔮 What I Would Improve for Production
+
+If this were a production system, I would add:
+
+☁️ Cloud Storage
+
+Store videos in AWS S3 / Cloudflare R2
+
+Use signed URLs for secure access
+
+🗄️ Database Upgrade
+
+Replace SQLite with PostgreSQL
+
+Support higher concurrency and scaling
+
+📈 Advanced Analytics
+
+Track partial watch-time percentage
+
+Generate heatmaps of most-watched segments
+
+🔐 Security & Privacy
+
+Authentication for private videos
+
+Expiring share links
+
+Rate-limiting uploads
+
+⚙️ Background Processing
+
+Offload ffmpeg jobs to a queue (BullMQ / workers)
+
+Prevent blocking API requests
+
+🧠 Key Learnings
+
+Handling media processing in web applications
+
+Server vs Client responsibilities in Next.js
+
+Deployment tradeoffs between serverless and VM-based platforms
+
+Designing scalable analytics models
