@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "Video" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "filename" TEXT NOT NULL,
+    "views" INTEGER NOT NULL DEFAULT 0,
+    "completed" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
